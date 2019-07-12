@@ -1,0 +1,33 @@
+- hosts: 127.0.0.1
+  connection: local
+  vars_prompt:
+      - name: "image_path"
+        prompt: "Enter the image path with image name"
+        private: no
+      - name: "hot_path"
+        prompt: "Enter heat template path"
+        private: no
+      - name: "env_path"
+        prompt: "Enter Environment file path"
+        private: no
+      - name: "dest_path"
+        prompt: "Enter the destination path to store"
+        private: no
+  tasks:
+    - name: Check the qcow2 image for errors
+      command: qemu-img check "{{ image_path }}"
+      register: check
+
+    - name: Qcow2 image details
+      debug:
+        msg: "{{ check.stdout }}"
+
+    -  name: Ansible code to create a archive of heat orchestration templates for developer
+       archive:
+         path:
+           - "{{ hot_path }}"
+           - "{{ env_path }}"
+         dest: "{{ dest_path }}"
+         format: tar
+
+

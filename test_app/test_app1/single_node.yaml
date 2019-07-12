@@ -1,0 +1,61 @@
+heat_template_version: 2015-04-30
+
+description: Template for deploying a simple Sandbox application
+
+parameters:
+
+  image_name:
+    type: string
+    description: Name of LA platform image
+  flavor_name:
+    type: string
+    description: Flavor name
+    default: dummyApp_flavor
+  network_name1:
+    description: TTPB net name
+    type: string
+    default: com.nokia.la.nw.ttb
+  keypair_name:
+    description: Key name for ssh
+    type: string
+    default: GoOn_App_new
+  app_eth0_ip:
+    type: string
+    description: IP for App_VM
+    default: 192.168.254.13
+  app_mask:
+    type: string
+    description: mask for App_VM
+    default: 27
+  network_name2:
+    description: Management network name
+    type: string
+    default: ttb
+  instance_name: 
+    description: Instance Name
+    type: string
+    default: Sandbox_App
+
+resources:
+  Sandbox_App:
+    type: OS::Nova::Server
+    properties:
+      name: Sandbox_App
+      image: { get_param: image_name }
+      config_drive: true
+      flavor: { get_param: flavor_name }
+      key_name: { get_param: keypair_name }
+      networks:
+         - {network: { get_param: network_name1 }}
+         - {network: { get_param: network_name2 }}
+      user_data:
+        str_replace:
+          template: |
+           properties:
+            - hostname: { get_param: instance_name }
+            - ip-info:$eth0_ip/$mask
+          params:
+            $eth0_ip:      { get_param: app_eth0_ip }
+            $mask:      { get_param: app_mask }
+       
+

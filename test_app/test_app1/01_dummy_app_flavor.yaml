@@ -1,0 +1,96 @@
+heat_template_version: 2015-04-30
+
+description: Template for Flavor creation
+
+parameters:
+
+  lapf_identifier:
+    description: Cluster identification
+    type: number
+    constraints:
+      - range: { min: 1, max: 65535 }
+        description: (lapf_identifier must be number <1-65535>)
+
+  lapf_tenant_name:
+    type: string
+    description: Name of LA tenant 
+    default: LATenant 
+ 
+  lapf_cla_flavor_name:
+    type: string
+    description: Flavor name
+    default: dummyApp_flavor
+
+  lapf_cla_num_VCPUs:
+    type: number
+    description: Number of VCPUs 
+    default: 4
+    constraints:
+      - allowed_values: [ 4, 6, 8 ]
+
+  lapf_cla_memory:
+    type: number
+    description: Memory in MegaBytes
+    default: 3000
+    
+  lapf_disk_size:
+    type: number
+    description: Disk space in GigaBytes
+    default: 30
+
+  lapf_eph_disk_size:
+    type: number
+    description: Ephemeral disk space in GigaBytes
+    default: 0
+
+  lapf_swap_space:
+    type: number
+    description: Swap space
+    default: 0
+    
+  lapf_rxtx_factor:
+    type: number
+    description: RxTx Factor
+    default: 1
+
+  lapf_vcpu_model:
+    type: string
+    description: VCPU model
+    default: Haswell
+
+  lapf_cpu_policy:
+    type: string
+    description: CPU policy
+    default: dedicated
+
+  lapf_storage_type:
+    type: string
+    description: Storage type
+    default: false
+ 
+  lapf_cpu_threads_policy:
+    type: string
+    description: CPU thread policy
+    default: isolate
+
+resources:
+
+  lapf_cla_flavor:
+    type: OS::Nova::Flavor
+    properties:
+      name: 
+        str_replace:
+          template: flavorname_tenant_lapfid
+          params: 
+            flavorname: { get_param: lapf_cla_flavor_name }
+            tenant: { get_param: lapf_tenant_name }
+            lapfid: { get_param: lapf_identifier }
+      vcpus: { get_param: lapf_cla_num_VCPUs } 
+      ram: { get_param: lapf_cla_memory }
+      disk: { get_param: lapf_disk_size }
+      ephemeral: { get_param: lapf_eph_disk_size }
+      swap: { get_param: lapf_swap_space }
+      rxtx_factor: { get_param: lapf_rxtx_factor }
+      extra_specs: { "hw:cpu_model": { get_param: lapf_vcpu_model },
+                     "hw:cpu_policy": { get_param: lapf_cpu_policy },
+                     "hw:cpu_threads_policy": {get_param: lapf_cpu_threads_policy}}
